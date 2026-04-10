@@ -1,5 +1,5 @@
 package com.example.rubylink.ui.screen
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,22 +11,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.rubylink.data.model.Chat
+package com.example.rubylink.ui.chat
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(
-    onChatClick: (String) -> Unit, // Передаем ID чата
+    onChatClick: (String, String) -> Unit, // (chatId, userName)
     onBackClick: () -> Unit
 ) {
-    // Пример данных (замените на реальные из ViewModel)
+    // Временные данные для демонстрации
     val chats = remember {
         listOf(
             Chat("1", "Анна Иванова", "", "Привет! Как дела?", System.currentTimeMillis() - 3600000, 2),
@@ -49,15 +47,15 @@ fun ChatListScreen(
             navigationIcon = {
                 IconButton(onClick = onBackClick) {
                     Icon(
-                        painter = painterResource(id = android.R.drawable.ic_menu_revert),
+                        imageVector = androidx.compose.material.icons.Icons.Default.ArrowBack,
                         contentDescription = "Назад"
                     )
                 }
             },
             actions = {
-                IconButton(onClick = { /* Открыть поиск */ }) {
+                IconButton(onClick = { /* Поиск */ }) {
                     Icon(
-                        painter = painterResource(id = android.R.drawable.ic_search_category_default),
+                        imageVector = androidx.compose.material.icons.Icons.Default.Search,
                         contentDescription = "Поиск"
                     )
                 }
@@ -76,7 +74,9 @@ fun ChatListScreen(
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
             items(chats) { chat ->
-                ChatItem(chat = chat, onClick = { onChatClick(chat.id) })
+                ChatItem(chat = chat, onClick = {
+                    onChatClick(chat.id, chat.userName)
+                })
                 Divider(modifier = Modifier.padding(start = 72.dp))
             }
         }
@@ -109,7 +109,7 @@ fun ChatItem(chat: Chat, onClick: () -> Unit) {
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Информация о чате
+        // Информация
         Column(modifier = Modifier.weight(1f)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

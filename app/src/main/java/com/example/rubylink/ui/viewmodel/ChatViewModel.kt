@@ -7,15 +7,17 @@ import java.util.UUID
 import com.example.rubylink.data.model.Message
 
 class ChatViewModel : ViewModel() {
+
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
 
-    fun sendMessage(text: String) {
+    fun sendMessage(text: String, chatId: String) {
         val newMessage = Message(
             id = UUID.randomUUID().toString(),
             text = text,
             sender = "Me",
-            timestamp = System.currentTimeMillis()
+            timestamp = System.currentTimeMillis(),
+            chatId = chatId
         )
         _messages.value = _messages.value + newMessage
     }

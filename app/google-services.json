@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "358751740913",
+    "project_id": "rubylink-c0b6d",
+    "storage_bucket": "rubylink-c0b6d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:358751740913:android:7a3cf87818a7c6edfc5a50",
+        "android_client_info": {
+          "package_name": "com.example.rubylink"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoN73o1dMXXWV7DuiqQ4mAZe0A4EQOKq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

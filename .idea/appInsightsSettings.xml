@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.rubylink" />
+                  <option name="mobileSdkAppId" value="1:358751740913:android:7a3cf87818a7c6edfc5a50" />
+                  <option name="projectId" value="rubylink-c0b6d" />
+                  <option name="projectNumber" value="358751740913" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

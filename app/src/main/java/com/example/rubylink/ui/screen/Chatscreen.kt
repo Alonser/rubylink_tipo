@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.rubylink.ui.viewmodel.ChatViewModel
@@ -24,18 +25,21 @@ import java.util.*
 fun ChatScreen(
     viewModel: ChatViewModel,
     chatId: String,
+    userName: String,
     onBackClick: () -> Unit
 ) {
     val messages by viewModel.messages.collectAsState()
     var text by remember { mutableStateOf("") }
 
-    val chatMessages = messages.filter { it.chatId == chatId }
+    // 🔥 слушаем Firebase
+    LaunchedEffect(chatId) {
+        viewModel.listenMessages(chatId)
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // 🔝 TOP BAR
         TopAppBar(
-            title = { Text("Чат") },
+            title = { Text(userName) },
             navigationIcon = {
                 IconButton(onClick = onBackClick) {
                     Text("<", fontSize = 22.sp)
@@ -43,13 +47,12 @@ fun ChatScreen(
             }
         )
 
-        // 💬 MESSAGES
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(8.dp),
-            reverseLayout = true
+            reverseLayout = true,
+            contentPadding = PaddingValues(8.dp)
         ) {
-            items(chatMessages.reversed()) { msg ->
+            items(messages.reversed()) { msg ->
                 MessageBubble(
                     text = msg.text,
                     isMe = msg.sender == "Me",
@@ -58,12 +61,10 @@ fun ChatScreen(
             }
         }
 
-        // ✍️ INPUT
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(8.dp)
         ) {
 
             TextField(
@@ -136,15 +137,11 @@ fun MessageBubble(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-
                     Text(
                         text = SimpleDateFormat("HH:mm", Locale.getDefault())
                             .format(Date(timestamp)),
                         fontSize = 10.sp,
-                        color = if (isMe)
-                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
-                        else
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        color = Color.Gray
                     )
 
                     if (isMe) {
@@ -153,7 +150,7 @@ fun MessageBubble(
                             imageVector = Icons.Default.DoneAll,
                             contentDescription = null,
                             modifier = Modifier.size(12.dp),
-                            tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                            tint = Color.Gray
                         )
                     }
                 }

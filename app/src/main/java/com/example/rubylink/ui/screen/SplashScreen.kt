@@ -14,18 +14,10 @@ import kotlinx.coroutines.delay
 import com.example.rubylink.R
 
 @Composable
-fun SplashScreen(
-    onFinish: () -> Unit
-) {
-    val scale = remember { Animatable(0f) }
+fun SplashScreen(onFinish: () -> Unit) {
 
-    LaunchedEffect(true) {
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(800)
-        )
-
-        delay(1200)
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(1200)
         onFinish()
     }
 
@@ -35,10 +27,8 @@ fun SplashScreen(
     ) {
         Image(
             painter = painterResource(id = R.drawable.ruby_logo),
-            contentDescription = "Ruby Logo",
-            modifier = Modifier
-                .size(120.dp)
-                .scale(scale.value)
+            contentDescription = null,
+            modifier = Modifier.size(140.dp)
         )
     }
 }

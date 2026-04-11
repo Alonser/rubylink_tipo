@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
 package com.example.rubylink.ui.screen
 
 import androidx.compose.foundation.background
@@ -11,24 +12,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.rubylink.data.model.Chat
-import java.text.SimpleDateFormat
-import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(
-    onChatClick: (String) -> Unit,
-    onBackClick: () -> Unit
+    onChatClick: (String) -> Unit
 ) {
     val chats = remember {
         listOf(
             Chat("1", "Анна Иванова", "", "Привет!", System.currentTimeMillis(), 2),
-            Chat("2", "Дмитрий Петров", "", "Скинь фото", System.currentTimeMillis(), 0)
+            Chat("2", "Дмитрий Петров", "", "Скинь фото", System.currentTimeMillis(), 0),
+            Chat("3", "Елена Смирнова", "", "Ок 👍", System.currentTimeMillis(), 1)
         )
     }
 
@@ -40,7 +36,10 @@ fun ChatListScreen(
 
         LazyColumn {
             items(chats) { chat ->
-                ChatItem(chat) { onChatClick(chat.id) }
+                ChatItem(chat = chat, onClick = {
+                    onChatClick(chat.id)
+                })
+
                 HorizontalDivider(modifier = Modifier.padding(start = 72.dp))
             }
         }
@@ -48,7 +47,10 @@ fun ChatListScreen(
 }
 
 @Composable
-fun ChatItem(chat: Chat, onClick: () -> Unit) {
+fun ChatItem(
+    chat: Chat,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -56,11 +58,12 @@ fun ChatItem(chat: Chat, onClick: () -> Unit) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         Box(
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(0.2f)),
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
             contentAlignment = Alignment.Center
         ) {
             Text(chat.userName.take(2))
@@ -68,9 +71,21 @@ fun ChatItem(chat: Chat, onClick: () -> Unit) {
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Column {
-            Text(chat.userName, fontWeight = FontWeight.Bold)
-            Text(chat.lastMessage, fontSize = 14.sp)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = chat.userName,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = chat.lastMessage,
+                maxLines = 1
+            )
+        }
+
+        if (chat.unreadCount > 0) {
+            Badge {
+                Text(chat.unreadCount.toString())
+            }
         }
     }
 }

@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- ОСНОВНАЯ ТЕМА -->
     <style name="Theme.Rubylink" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- SPLASH ТЕМА -->
+    <style name="Theme.Rubylink.Splash" parent="Theme.SplashScreen">
+
+        <item name="windowSplashScreenBackground">#0D0D0D</item>
+
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ruby_logo</item>
+
+        <item name="windowSplashScreenAnimationDuration">800</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.Rubylink</item>
+
+    </style>
+
 </resources>

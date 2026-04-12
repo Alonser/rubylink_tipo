@@ -5,7 +5,7 @@ import com.example.rubylink.data.model.Message
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.util.*
+import java.util.UUID
 
 class ChatViewModel : ViewModel() {
 
@@ -29,7 +29,7 @@ class ChatViewModel : ViewModel() {
     }
 
     fun sendMessage(text: String, chatId: String, senderId: String) {
-        val msg = Message(
+        val message = Message(
             id = UUID.randomUUID().toString(),
             text = text,
             senderId = senderId,
@@ -39,7 +39,7 @@ class ChatViewModel : ViewModel() {
         db.collection("chats")
             .document(chatId)
             .collection("messages")
-            .document(msg.id)
-            .set(msg)
+            .document(message.id)
+            .set(message)
     }
 }

@@ -9,51 +9,63 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Цвета
+// 🔴 Основной цвет (рубин)
 val RubyPrimary = Color(0xFF9B111E)
-val RubyOnPrimary = Color.White
+
+// ⚫ Фон
 val RubyBackground = Color(0xFF0D0D0D)
+
+// 🧱 Карточки / элементы
 val RubySurface = Color(0xFF1C1C1E)
-val RubyOnSurface = Color(0xFFEAEAEA)
 
-// Шрифты
-val RubyFontFamily = FontFamily.Default
+// 🤍 Текст
+val RubyOnSurface = Color(0xFFFFFFFF)
 
-// Типография
+// 🔘 Secondary (акценты)
+val RubySecondary = Color(0xFF2A2A2D)
+
+// 🌑 Цветовая схема
+private val DarkColorScheme = darkColorScheme(
+    primary = RubyPrimary,
+    onPrimary = Color.White,
+
+    background = RubyBackground,
+    onBackground = RubyOnSurface,
+
+    surface = RubySurface,
+    onSurface = RubyOnSurface,
+
+    secondary = RubySecondary,
+    onSecondary = RubyOnSurface
+)
+
+// ✍️ Шрифты
 val RubyTypography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = RubyFontFamily,
+        fontFamily = FontFamily.Default,
         fontSize = 16.sp,
         color = RubyOnSurface
     ),
     bodyMedium = TextStyle(
-        fontFamily = RubyFontFamily,
+        fontFamily = FontFamily.Default,
         fontSize = 14.sp,
         color = RubyOnSurface
     ),
     bodySmall = TextStyle(
-        fontFamily = RubyFontFamily,
+        fontFamily = FontFamily.Default,
         fontSize = 12.sp,
         color = RubyOnSurface
     )
 )
 
-// Формы
+// 🔲 Скругления (как в Telegram)
 val RubyShapes = Shapes(
     small = RoundedCornerShape(8.dp),
     medium = RoundedCornerShape(16.dp),
     large = RoundedCornerShape(24.dp)
 )
 
-// Тёмная цветовая схема
-private val DarkColorScheme = darkColorScheme(
-    primary = RubyPrimary,
-    onPrimary = RubyOnPrimary,
-    background = RubyBackground,
-    surface = RubySurface,
-    onSurface = RubyOnSurface
-)
-
+// 🎨 Тема
 @Composable
 fun RubyTheme(content: @Composable () -> Unit) {
     MaterialTheme(

@@ -19,15 +19,7 @@ fun AppNavGraph() {
     ) {
         composable("chat_list") {
             ChatListScreen(
-                onChatClick = { chatId ->
-                    // Передаем ID чата и имя
-                    val chatName = when(chatId) {
-                        "1" -> "Анна Иванова"
-                        "2" -> "Дмитрий Петров"
-                        "3" -> "Елена Смирнова"
-                        "4" -> "Максим Козлов"
-                        else -> "Чат"
-                    }
+                onChatClick = { chatId, chatName ->
                     navController.navigate("chat/$chatId/$chatName")
                 }
             )

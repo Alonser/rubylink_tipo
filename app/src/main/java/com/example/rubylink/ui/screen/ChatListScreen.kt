@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,17 +24,12 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(
-    onChatClick: (String) -> Unit
+    onChatClick: (String, String) -> Unit
 ) {
-    val chats = listOf(
-        ChatInfo("1", "Анна Иванова", "Привет! Как дела?", System.currentTimeMillis() - 3600000, 2),
-        ChatInfo("2", "Дмитрий Петров", "Иван, да.", System.currentTimeMillis() - 7200000, 0),
-        ChatInfo("3", "Елена Смирнова", "Готовись за помощь!", System.currentTimeMillis() - 86400000, 1),
-        ChatInfo("4", "Максим Козлов", "Продолжаем!", System.currentTimeMillis() - 172800000, 0)
-    )
+    // Используем данные из ChatData
+    val chats = ChatData.chats
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Верхняя панель
         TopAppBar(
             title = {
                 Text(
@@ -47,13 +44,19 @@ fun ChatListScreen(
             )
         )
 
-        // Список чатов
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
             items(chats) { chat ->
-                ChatCard(chat = chat, onClick = { onChatClick(chat.id) })
+                ChatCard(
+                    chat = chat,
+                    onClick = {
+                        // Отмечаем чат как прочитанный
+                        ChatData.markAsRead(chat.id)
+                        onChatClick(chat.id, chat.name)
+                    }
+                )
             }
         }
     }
@@ -85,7 +88,6 @@ fun ChatCard(chat: ChatInfo, onClick: () -> Unit) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Аватар
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -113,7 +115,6 @@ fun ChatCard(chat: ChatInfo, onClick: () -> Unit) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Информация
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -172,11 +173,3 @@ fun ChatCard(chat: ChatInfo, onClick: () -> Unit) {
         }
     }
 }
-
-data class ChatInfo(
-    val id: String,
-    val name: String,
-    val lastMessage: String,
-    val lastMessageTime: Long,
-    val unreadCount: Int
-)

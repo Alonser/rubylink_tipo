@@ -23,34 +23,35 @@ fun ChatScreen(
     chatName: String,
     onBackClick: () -> Unit
 ) {
-    // Пример сообщений
-    val messages = remember {
-        mutableStateListOf(
-            Message("1", "Привет! Как дела?", false, System.currentTimeMillis() - 3600000),
-            Message("2", "Привет! Нормально, а у тебя?", true, System.currentTimeMillis() - 3500000),
-            Message("3", "Тоже хорошо. Чем занимаешься?", false, System.currentTimeMillis() - 3400000),
-            Message("4", "Работаю над проектом", true, System.currentTimeMillis() - 3300000),
-            Message("5", "А ты?", true, System.currentTimeMillis() - 3200000),
-            Message("6", "Смотрю сериал", false, System.currentTimeMillis() - 3100000),
-            Message("7", "Скинь фото", true, System.currentTimeMillis() - 3000000),
-            Message("8", "Вот, держи", false, System.currentTimeMillis() - 2900000)
-        )
-    }
-
+    // Получаем сообщения из ChatData
+    val messages = ChatData.getMessages(chatId)
     var text by remember { mutableStateOf("") }
 
+    // Добавляем приветственное сообщение если чат пустой
+    LaunchedEffect(Unit) {
+        if (messages.isEmpty()) {
+            val welcomeMessage = when(chatId) {
+                "1" -> "Привет! Как дела?"
+                "2" -> "Привет!"
+                "3" -> "Здравствуйте!"
+                else -> "Добрый день!"
+            }
+            ChatData.addMessage(chatId, welcomeMessage, false)
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
-        // Верхняя панель
         TopAppBar(
             title = {
                 Column {
                     Text(
                         text = chatName,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                     Text(
-                        text = "был(а) в сети недавно",
+                        text = "онлайн",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                     )
@@ -59,6 +60,18 @@ fun ChatScreen(
             navigationIcon = {
                 IconButton(onClick = onBackClick) {
                     Text("←", fontSize = 24.sp, color = MaterialTheme.colorScheme.onPrimary)
+                }
+            },
+            actions = {
+                // Кнопка для тестового сообщения от собеседника
+                IconButton(
+                    onClick = {
+                        val testMessages = listOf("Да", "Нет", "Может быть", "Отлично!", "Понял", "Согласен", "Не знаю")
+                        val randomMessage = testMessages.random()
+                        ChatData.addMessage(chatId, randomMessage, false)
+                    }
+                ) {
+                    Text("📨", fontSize = 20.sp, color = MaterialTheme.colorScheme.onPrimary)
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -116,15 +129,7 @@ fun ChatScreen(
                 Button(
                     onClick = {
                         if (text.isNotBlank()) {
-                            messages.add(
-                                0,
-                                Message(
-                                    id = System.currentTimeMillis().toString(),
-                                    text = text,
-                                    isFromMe = true,
-                                    timestamp = System.currentTimeMillis()
-                                )
-                            )
+                            ChatData.addMessage(chatId, text, true)
                             text = ""
                         }
                     },
@@ -139,15 +144,9 @@ fun ChatScreen(
 }
 
 @Composable
-fun MessageBubble(
-    text: String,
-    isMe: Boolean,
-    timestamp: Long
-) {
+fun MessageBubble(text: String, isMe: Boolean, timestamp: Long) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (isMe) Arrangement.End else Arrangement.Start
     ) {
         Column(
@@ -155,46 +154,25 @@ fun MessageBubble(
                 .widthIn(max = 280.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(
-                    if (isMe)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.surfaceVariant
+                    if (isMe) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.surfaceVariant
                 )
                 .padding(12.dp)
         ) {
-            // Текст сообщения
             Text(
                 text = text,
-                color = if (isMe)
-                    MaterialTheme.colorScheme.onPrimary
-                else
-                    MaterialTheme.colorScheme.onSurface,
+                color = if (isMe) MaterialTheme.colorScheme.onPrimary
+                else MaterialTheme.colorScheme.onSurface,
                 fontSize = 14.sp
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
-            // Время под сообщением
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Text(
-                    text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(timestamp)),
-                    fontSize = 10.sp,
-                    color = if (isMe)
-                        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
-                    else
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            }
+            Text(
+                text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(timestamp)),
+                fontSize = 10.sp,
+                color = if (isMe) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier.align(Alignment.End)
+            )
         }
     }
 }
-
-data class Message(
-    val id: String,
-    val text: String,
-    val isFromMe: Boolean,
-    val timestamp: Long
-)

@@ -1,45 +1,60 @@
 package com.example.rubylink.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.rubylink.data.model.Message
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.util.UUID
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class ChatViewModel : ViewModel() {
 
-    private val db = FirebaseFirestore.getInstance()
-
+    // Хранилище сообщений
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
-    val messages: StateFlow<List<Message>> = _messages
+    val messages: StateFlow<List<Message>> = _messages.asStateFlow()
 
-    fun listenMessages(chatId: String) {
-        db.collection("chats")
-            .document(chatId)
-            .collection("messages")
-            .orderBy("timestamp")
-            .addSnapshotListener { snapshot, _ ->
-                if (snapshot != null) {
-                    _messages.value = snapshot.documents.mapNotNull {
-                        it.toObject(Message::class.java)
-                    }
-                }
-            }
+    // Функция для отправки сообщения
+    fun sendMessage(text: String, chatId: String, isFromMe: Boolean) {
+        viewModelScope.launch {
+            val newMessage = Message(
+                id = System.currentTimeMillis().toString(),
+                text = text,
+                isFromMe = isFromMe,
+                timestamp = System.currentTimeMillis(),
+                chatId = chatId
+            )
+            _messages.value = _messages.value + newMessage
+        }
     }
 
-    fun sendMessage(text: String, chatId: String, senderId: String) {
-        val message = Message(
-            id = UUID.randomUUID().toString(),
-            text = text,
-            senderId = senderId,
-            timestamp = System.currentTimeMillis()
-        )
+    // Функция для получения сообщений чата
+    fun getMessagesForChat(chatId: String): List<Message> {
+        return _messages.value.filter { it.chatId == chatId }
+    }
 
-        db.collection("chats")
-            .document(chatId)
-            .collection("messages")
-            .document(message.id)
-            .set(message)
+    // Функция для добавления тестового сообщения
+    fun addTestMessage(chatId: String) {
+        viewModelScope.launch {
+            val testMessages = listOf(
+                "Привет!", "Как дела?", "Что нового?",
+                "Скинь фото", "Понял", "Согласен",
+                "Нет", "Да", "Может быть", "Отлично!"
+            )
+            val randomMessage = testMessages.random()
+            val newMessage = Message(
+                id = System.currentTimeMillis().toString(),
+                text = randomMessage,
+                isFromMe = false,
+                timestamp = System.currentTimeMillis(),
+                chatId = chatId
+            )
+            _messages.value = _messages.value + newMessage
+        }
+    }
+
+    // Очистка сообщений (опционально)
+    fun clearMessages() {
+        _messages.value = emptyList()
     }
 }

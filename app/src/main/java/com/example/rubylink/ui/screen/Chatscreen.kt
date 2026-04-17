@@ -13,6 +13,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.rubylink.data.model.Message
+import com.example.rubylink.ui.viewmodel.ChatViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,26 +23,31 @@ import java.util.*
 @Composable
 fun ChatScreen(
     chatId: String,
-    chatName: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: ChatViewModel = viewModel()
 ) {
-    // Получаем сообщения и подписываемся на обновления
-    var messages by remember { mutableStateOf(ChatData.getMessages(chatId)) }
+    val chatName = when(chatId) {
+        "1" -> "Анна Иванова"
+        "2" -> "Дмитрий Петров"
+        "3" -> "Елена Смирнова"
+        "4" -> "Максим Козлов"
+        else -> "Чат"
+    }
+
+    val allMessages by viewModel.messages.collectAsState()
+    val messages = allMessages.filter { it.chatId == chatId }
     var text by remember { mutableStateOf("") }
 
-    // Функция обновления
-    fun updateMessages() {
-        messages = ChatData.getMessages(chatId)
-    }
-
-    // Обновляем при каждом перерисовке
     LaunchedEffect(chatId) {
-        updateMessages()
-    }
-
-    // Обновляем когда меняются сообщения
-    DisposableEffect(chatId) {
-        onDispose { }
+        if (messages.isEmpty()) {
+            val welcomeMessage = when(chatId) {
+                "1" -> "Привет! Как дела?"
+                "2" -> "Привет!"
+                "3" -> "Здравствуйте!"
+                else -> "Добрый день!"
+            }
+            viewModel.sendMessage(welcomeMessage, chatId, false)
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -65,11 +73,9 @@ fun ChatScreen(
                 }
             },
             actions = {
-                // Кнопка для тестового сообщения от собеседника
                 IconButton(
                     onClick = {
-                        ChatData.sendTestMessage(chatId)
-                        updateMessages()
+                        viewModel.addTestMessage(chatId)
                     }
                 ) {
                     Text("📨", fontSize = 20.sp, color = MaterialTheme.colorScheme.onPrimary)
@@ -78,11 +84,11 @@ fun ChatScreen(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary
             )
         )
 
-        // Список сообщений
         if (messages.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -90,10 +96,15 @@ fun ChatScreen(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Нет сообщений. Напишите что-нибудь!",
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("💬", fontSize = 48.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Нет сообщений",
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
             }
         } else {
             LazyColumn(
@@ -114,7 +125,6 @@ fun ChatScreen(
             }
         }
 
-        // Поле ввода
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shadowElevation = 8.dp,
@@ -144,9 +154,8 @@ fun ChatScreen(
                 Button(
                     onClick = {
                         if (text.isNotBlank()) {
-                            ChatData.addMessage(chatId, text, true)
+                            viewModel.sendMessage(text, chatId, true)
                             text = ""
-                            updateMessages()
                         }
                     },
                     shape = RoundedCornerShape(24.dp),

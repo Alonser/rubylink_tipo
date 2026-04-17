@@ -19,25 +19,22 @@ fun AppNavGraph() {
     ) {
         composable("chat_list") {
             ChatListScreen(
-                onChatClick = { chatId, chatName ->
-                    navController.navigate("chat/$chatId/$chatName")
+                onChatClick = { chatId ->
+                    navController.navigate("chat/$chatId")
                 }
             )
         }
 
         composable(
-            route = "chat/{chatId}/{chatName}",
+            route = "chat/{chatId}",
             arguments = listOf(
-                navArgument("chatId") { type = NavType.StringType },
-                navArgument("chatName") { type = NavType.StringType }
+                navArgument("chatId") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
-            val chatName = backStackEntry.arguments?.getString("chatName") ?: ""
 
             ChatScreen(
                 chatId = chatId,
-                chatName = chatName,
                 onBackClick = { navController.popBackStack() }
             )
         }

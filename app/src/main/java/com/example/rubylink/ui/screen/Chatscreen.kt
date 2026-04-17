@@ -23,21 +23,23 @@ fun ChatScreen(
     chatName: String,
     onBackClick: () -> Unit
 ) {
-    // Получаем сообщения из ChatData
-    val messages = ChatData.getMessages(chatId)
+    // Получаем сообщения и подписываемся на обновления
+    var messages by remember { mutableStateOf(ChatData.getMessages(chatId)) }
     var text by remember { mutableStateOf("") }
 
-    // Добавляем приветственное сообщение если чат пустой
-    LaunchedEffect(Unit) {
-        if (messages.isEmpty()) {
-            val welcomeMessage = when(chatId) {
-                "1" -> "Привет! Как дела?"
-                "2" -> "Привет!"
-                "3" -> "Здравствуйте!"
-                else -> "Добрый день!"
-            }
-            ChatData.addMessage(chatId, welcomeMessage, false)
-        }
+    // Функция обновления
+    fun updateMessages() {
+        messages = ChatData.getMessages(chatId)
+    }
+
+    // Обновляем при каждом перерисовке
+    LaunchedEffect(chatId) {
+        updateMessages()
+    }
+
+    // Обновляем когда меняются сообщения
+    DisposableEffect(chatId) {
+        onDispose { }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -66,9 +68,8 @@ fun ChatScreen(
                 // Кнопка для тестового сообщения от собеседника
                 IconButton(
                     onClick = {
-                        val testMessages = listOf("Да", "Нет", "Может быть", "Отлично!", "Понял", "Согласен", "Не знаю")
-                        val randomMessage = testMessages.random()
-                        ChatData.addMessage(chatId, randomMessage, false)
+                        ChatData.sendTestMessage(chatId)
+                        updateMessages()
                     }
                 ) {
                     Text("📨", fontSize = 20.sp, color = MaterialTheme.colorScheme.onPrimary)
@@ -82,20 +83,34 @@ fun ChatScreen(
         )
 
         // Список сообщений
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp),
-            reverseLayout = true
-        ) {
-            items(messages.reversed()) { message ->
-                MessageBubble(
-                    text = message.text,
-                    isMe = message.isFromMe,
-                    timestamp = message.timestamp
+        if (messages.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Нет сообщений. Напишите что-нибудь!",
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(16.dp),
+                reverseLayout = true
+            ) {
+                items(messages.reversed()) { message ->
+                    MessageBubble(
+                        text = message.text,
+                        isMe = message.isFromMe,
+                        timestamp = message.timestamp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
         }
 
@@ -131,6 +146,7 @@ fun ChatScreen(
                         if (text.isNotBlank()) {
                             ChatData.addMessage(chatId, text, true)
                             text = ""
+                            updateMessages()
                         }
                     },
                     shape = RoundedCornerShape(24.dp),

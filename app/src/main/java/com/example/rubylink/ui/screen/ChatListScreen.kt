@@ -8,9 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,7 +24,6 @@ import java.util.*
 fun ChatListScreen(
     onChatClick: (String, String) -> Unit
 ) {
-    // Используем данные из ChatData
     val chats = ChatData.chats
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -52,7 +49,6 @@ fun ChatListScreen(
                 ChatCard(
                     chat = chat,
                     onClick = {
-                        // Отмечаем чат как прочитанный
                         ChatData.markAsRead(chat.id)
                         onChatClick(chat.id, chat.name)
                     }
